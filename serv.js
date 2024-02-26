@@ -1,61 +1,58 @@
 const express = require('express');
-const app = express();
+const csv = require('csv-parser');
+const fs = require('fs');
 const cors = require('cors');
 
-const { data } = require('./csv.js');
+const app = express();
+const PORT = 3300;
+
+let data = [];
 
 app.use(cors());
 
-const PORT = 3300;
-const resultsPerPage = 30;
-
-
-// Load the data before setting up the routes
-data().then(data => {
-    // Saada andmed kasutajale JSON formaadis kasutades HTTP veebiserverit
-    app.get('/spare-parts', (req, res) => {
-        let page = parseInt(req.query.page) || 1;
-        let startIndex = (page - 1) * resultsPerPage;
-        let endIndex = page * resultsPerPage;
-
-        let responseData = data.slice(startIndex, endIndex);
-
-        res.json(responseData);
+// Loe CSV failist andmed mällu
+fs.createReadStream('LE.txt')
+    .pipe(csv({ separator: '\t' }))
+    .on('data', (row) => {
+        data.push(row);
+    })
+    .on('end', () => {
+        console.log(data)
+        console.log('CSV failist andmete lugemine lõpetatud');
+        console.log(`Server töötab aadressil http://localhost:${PORT}/spare-parts`);
+    })
+    .on('error', (err) => {
+        console.error('Error faili lugemisel:', err);
     });
 
-    // Filtreeri/otsi varuosasid seerianumbri või nime järgi
-    app.get('/spare-parts/search', (req, res) => {
-        const { name, sn } = req.query;
+app.get('/spare-parts', (req, res) => {
+    const { name, sn, page = 1, limit = 30 } = req.query;
 
-        let filteredData = data.filter((item) => {
+    let filteredData = data;
+
+    // Apply search filters if name or sn is provided
+    if (name || sn) {
+        filteredData = data.filter((item) => {
+            let itemNameExists = item.name && typeof item.name === 'string';
+            let itemSnExists = item.sn && typeof item.sn === 'string';
+
             return (
-                (!name || item.name.toLowerCase().includes(name.toLowerCase())) &&
-                (!sn || item.sn.toLowerCase().includes(sn.toLowerCase()))
+                (!name || (itemNameExists && item.name.toLowerCase().includes(name.toLowerCase()))) &&
+                (!sn || (itemSnExists && item.sn.toLowerCase().includes(sn.toLowerCase())))
             );
         });
+    }
 
-        res.json(filteredData);
-    });
+    // Apply pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const results = filteredData.slice(startIndex, endIndex);
 
-    // Parem hinne kui teed ka lehekülgedeks jagamise ja sorteerimise
-    app.get('/spare-parts/sort', (req, res) => {
-        const { sort } = req.query;
+    res.json(results);
 
-        let sortedData = [...data];
-        if (sort) {
-            sortedData.sort((a, b) => {
-                if (sort.startsWith('-')) {
-                    return b[sort.substring(1)] - a[sort.substring(1)];
-                } else {
-                    return a[sort] - b[sort];
-                }
-            });
-        }
+    console.log('Päring:', req.query);
+});
 
-        res.json(sortedData);
-    });
-
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+app.listen(PORT, () => {
+    console.log(`Server käivitatud`);
 });

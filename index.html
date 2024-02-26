@@ -4,14 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare Parts</title>
+    <title>Auto Varuosad</title>
+    <script src="client.js"></script>
+    <link rel="stylesheet" href="auto.css">
 </head>
 
 <body>
-    <h1>Data from Server</h1>
-    <div id="dataDiv"></div>
 
-    <script src="client.js"></script>
+    <h1>Auto Varuosad</h1>
+
+    <form id="search-form">
+        <input type="text" id="name" placeholder="Nimi">
+        <input type="text" id="sn" placeholder="Seerianumber">
+        <button type="submit">Otsi</button>
+    </form>
+
+    <p id="spare-parts"></p>
+
+    <a href="" id="eelmine">eelmine leht</a>
+    <a href="" id="jargmine">järgmine leht</a>
+
 </body>
 
 </html>
