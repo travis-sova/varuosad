@@ -8,11 +8,15 @@ const PORT = 3300;
 
 let data = [];
 
+const dhiheaders = ['sn', 'name', 'ladu_1', 'ladu_2', 'ladu_3', 'ladu_4', 'ladu_5', 'ladu_6', 'hind', 'firma', 'hind_km'];
+
 app.use(cors());
+
+// "sn"	"name"	"lahter_1"	"lahter_2"	"lahter_3"	"lahter_4"	"lahter_5"	"lahter_6"	"hind"	"firma"	"hind_km"
 
 // Loe CSV failist andmed mällu
 fs.createReadStream('LE.txt')
-    .pipe(csv({ separator: '\t' }))
+    .pipe(csv({ separator: '\t', headers:dhiheaders}))
     .on('data', (row) => {
         data.push(row);
     })
