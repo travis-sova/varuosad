@@ -1,3 +1,5 @@
+let page = 1;
+
 function fetchSpareParts(name = '', sn = '', page = 1) {
     // Define your query parameters
     let params = new URLSearchParams({
@@ -40,8 +42,40 @@ document.getElementById('search-form').addEventListener('submit', function (even
     const name = document.getElementById('name').value;
     const sn = document.getElementById('sn').value;
 
+    page = 1;
+
     // Fetch the spare parts with the input values
-    fetchSpareParts(name, sn);
+    fetchSpareParts(name, sn, page);
+});
+
+document.getElementById('jargmine').addEventListener('click', function (event) {
+    // Prevent the default action
+    event.preventDefault();
+
+    // Get the values of the input fields
+    const name = document.getElementById('name').value;
+    const sn = document.getElementById('sn').value;
+
+    // Increment the page number
+    page++;
+
+    // Fetch the spare parts with the input values
+    fetchSpareParts(name, sn, page);
+});
+
+document.getElementById('eelmine').addEventListener('click', function (event) {
+    // Prevent the default action
+    event.preventDefault();
+
+    // Get the values of the input fields
+    const name = document.getElementById('name').value;
+    const sn = document.getElementById('sn').value;
+
+    // Increment the page number
+    page = Math.max(1, page - 1);
+
+    // Fetch the spare parts with the input values
+    fetchSpareParts(name, sn, page);
 });
 
 // Fetch the first page of spare parts when the page loads
